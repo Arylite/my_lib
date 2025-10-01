@@ -1,0 +1,13 @@
+/*
+** EPITECH PROJECT, 2025
+** C Pool - Day 07
+** File description:
+** my_showmem.c
+*/
+
+#include "my.h"
+
+int my_showmem(const char *str, int size)
+{
+    return 0;
+}
