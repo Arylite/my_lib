@@ -5,16 +5,10 @@
 ** Converts a string to lowercase
 */
 
-#include "my.h"
-
 char *my_strlowcase(char *str)
 {
-    char *orig = str;
-
-    while (*str != '\0') {
-        if (*str >= 'A' && *str <= 'Z')
-            *str += 32;
-        str++;
-    }
-    return orig;
+    for (char *p = str; *p; ++p)
+        if ((unsigned char)*p >= 'A' && (unsigned char)*p <= 'Z')
+            *p += 'a' - 'A';
+    return str;
 }

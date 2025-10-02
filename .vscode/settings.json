@@ -2,6 +2,7 @@
     "files.associations": {
         "my.h": "c",
         "stddef.h": "c",
-        "limits.h": "c"
+        "limits.h": "c",
+        "cstdlib": "c"
     }
 }

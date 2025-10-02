@@ -4,19 +4,21 @@
 ** File description:
 ** Finds the first occurrence of a substring in a string
 */
-
-#include "my.h"
+#include <stddef.h>
 
 char *my_strstr(char *str, char const *to_find)
 {
-    int len_to_find = my_strlen(to_find);
-
-    if (len_to_find == 0)
+    if (!*to_find)
         return str;
-    for (int i = 0; str[i] != '\0'; i++) {
-        if (my_strncmp(&str[i], to_find, len_to_find) == 0) {
-            return &str[i];
+    for (; *str; str++) {
+        char *s = str;
+        char const *f = to_find;
+        while (*s && *f && *s == *f) {
+            s++;
+            f++;
         }
+        if (!*f)
+            return (char *)str;
     }
-    return 0;
+    return NULL;
 }

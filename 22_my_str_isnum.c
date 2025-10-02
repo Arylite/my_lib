@@ -5,14 +5,13 @@
 ** Checks if a string contains only numeric characters
 */
 
-#include "my.h"
-
 int my_str_isnum(char const *str)
 {
-    while (*str != '\0') {
-        if (*str < 48 || *str > 57)
+    if (!str || !*str)
+        return 0;
+    for (; *str; str++) {
+        if (*str < '0' || *str > '9')
             return 0;
-        str++;
     }
     return 1;
 }

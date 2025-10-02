@@ -5,16 +5,11 @@
 ** Converts a string to uppercase
 */
 
-#include "my.h"
-
 char *my_strupcase(char *str)
 {
-    char *orig = str;
-    int lenght = my_strlen(str);
-
-    for (int i = 0; i < lenght; i++) {
-        if (str[i] >= 'a' && str[i] <= 'z')
-            str[i] -= 32;
+    for (char *p = str; *p; ++p) {
+        if (*p >= 'a' && *p <= 'z')
+            *p -= 32;
     }
-    return orig;
+    return str;
 }

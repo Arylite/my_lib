@@ -5,8 +5,6 @@
 ** Copies n characters from a string
 */
 
-#include <stdio.h>
-
 char *my_strncpy(char *dest, char const *src, int n)
 {
     int i = 0;

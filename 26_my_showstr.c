@@ -9,13 +9,15 @@
 
 int my_showstr(char const *str)
 {
-    while (*str != '\0') {
-        if (*str < 32 || *str > 126) {
-            my_putnbr_base(*str, "0123456789abcdef");
+    for (; *str; str++) {
+        if ((unsigned char)*str < 32 || (unsigned char)*str > 126) {
+            my_putchar('\\');
+            if ((unsigned char)*str < 16)
+                my_putchar('0');
+            my_putnbr_base((unsigned char)*str, "0123456789abcdef");
         } else {
             my_putchar(*str);
         }
-        str++;
     }
     return 0;
 }

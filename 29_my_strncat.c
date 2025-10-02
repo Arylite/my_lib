@@ -5,21 +5,14 @@
 ** Concatenates two strings with a limit on the number of characters
 */
 
-#include "my.h"
-
 char *my_strncat(char *dest, char const *src, int nb)
 {
     char *ptr = dest;
 
-    while (*ptr != '\0') {
+    while (*ptr)
         ptr++;
-    }
-    while (nb > 0 && *src != '\0') {
-        *ptr = *src;
-        ptr++;
-        src++;
-        nb--;
-    }
+    for (int i = 0; i < nb && src[i]; i++)
+        *ptr++ = src[i];
     *ptr = '\0';
     return dest;
 }

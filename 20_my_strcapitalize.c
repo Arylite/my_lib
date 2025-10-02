@@ -13,14 +13,13 @@ char *my_strcapitalize(char *str)
     int new_word = 1;
 
     while (str[i] != '\0') {
-        if (my_isalpha(str[i])) {
-            if (new_word && my_islower(&str[i])) {
-                str[i] = *my_strupcase(&str[i]);
-            } else if (!new_word && my_isupper(&str[i])) {
-                str[i] = *my_strlowcase(&str[i]);
-            }
-            new_word = 0;
-        } else if (my_isdigit(&str[i])) {
+        if (my_str_isalpha(str[i]) && new_word && my_str_islower(str[i])) {
+            str[i] -= 'a' - 'A';
+        } else if (my_str_isalpha(str[i]) && !new_word && my_str_isupper(str[i])) {
+            str[i] += 'a' - 'A';
+        }
+
+        if (my_str_isalpha(str[i]) || my_str_isnum(str[i])) {
             new_word = 0;
         } else {
             new_word = 1;

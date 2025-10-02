@@ -5,14 +5,13 @@
 ** Checks if a string contains only lowercase characters
 */
 
-#include "my.h"
-
 int my_str_islower(char const *str)
 {
-    while (*str != '\0') {
-        if (*str < 97 || *str > 122)
+    if (!str || !*str)
+        return 0;
+    for (; *str; str++) {
+        if (*str < 'a' || *str > 'z')
             return 0;
-        str++;
     }
     return 1;
 }

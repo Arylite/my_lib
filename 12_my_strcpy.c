@@ -5,8 +5,6 @@
 ** Copies a string into another
 */
 
-#include "my.h"
-
 char *my_strcpy(char *dest, char const *src)
 {
     char *d = dest;

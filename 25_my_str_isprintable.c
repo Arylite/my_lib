@@ -5,14 +5,12 @@
 ** Checks if a string contains only printable characters
 */
 
-#include "my.h"
-
 int my_str_isprintable(char const *str)
 {
-    while (*str != '\0') {
-        if (*str < 32 || *str > 126)
+    if (!str || !*str)
+        return 1;
+    for (; *str; str++)
+        if ((unsigned char)*str < 32 || (unsigned char)*str > 126)
             return 0;
-        str++;
-    }
     return 1;
 }

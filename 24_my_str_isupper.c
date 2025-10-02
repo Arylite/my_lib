@@ -5,14 +5,13 @@
 ** Checks if a string contains only uppercase characters
 */
 
-#include "my.h"
-
 int my_str_isupper(char const *str)
 {
-    while (*str != '\0') {
-        if (*str < 65 || *str > 90)
+    if (!str || !*str)
+        return 0;
+    for (; *str; str++) {
+        if (*str < 'A' || *str > 'Z')
             return 0;
-        str++;
     }
     return 1;
 }
