@@ -10,14 +10,8 @@
 char *my_revstr(char *str)
 {
     int len = my_strlen(str);
-    int i = 0;
-    char junk;
-
-    while (i < len / 2) {
-        junk = str[i];
-        str[i] = str[len - i - 1];
-        str[len - i - 1] = junk;
-        i++;
+    for (int i = 0, j = len - 1; i < j; i++, j--) {
+        my_swap(&str[i], &str[j]);
     }
     return str;
 }

@@ -9,18 +9,17 @@
 
 int my_getnbr(char const *str)
 {
-    int compt = 0;
     int sign = 1;
     int result = 0;
 
-    while (str[compt] == 45 || str[compt] == 43) {
-        if (str[compt] == 45)
+    while (*str == '-' || *str == '+') {
+        if (*str == '-')
             sign = -sign;
-        compt++;
+        str++;
     }
-    while (str[compt] >= '0' && str[compt] <= '9') {
-        result = result * 10 + (str[compt] - '0');
-        compt++;
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10 + (*str - '0');
+        str++;
     }
     return result * sign;
 }

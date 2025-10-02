@@ -5,18 +5,16 @@
 ** Checks if a number is negative or non-negative and prints 'N' or 'P'
 */
 
-#include "my.h"
+#include <unistd.h>
 
 int my_isneg(int n)
 {
     char c;
 
     if ((n > 0) || (n == 0)) {
-        c = 'P';
-        my_putchar(c);
+        write(1, "P", 1);
     } else if (n < 0) {
-        c = 'N';
-        my_putchar(c);
+        write(1, "N", 1);
     }
     return 0;
 }

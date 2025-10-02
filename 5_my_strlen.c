@@ -6,13 +6,10 @@
 */
 
 #include "my.h"
-
 int my_strlen(char const *str)
 {
-    int i = 0;
-
-    while (str[i] != '\0') {
-        i++;
-    }
-    return i;
+    const char *s = str;
+    while (*s)
+        ++s;
+    return s - str;
 }

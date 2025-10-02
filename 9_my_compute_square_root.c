@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2025
 ** Libmy - my_compute_square_root.c
 ** File description:
-** Computes the square root of a number
+** Computes the approximate square root of a number
 */
 
 #include "my.h"
