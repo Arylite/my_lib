@@ -10,5 +10,6 @@
 void my_putchar(char c)
 {
     ssize_t __w = write(1, &c, 1);
+
     (void)__w;
 }

@@ -7,8 +7,10 @@
 
 int my_str_islower(char const *str)
 {
-    if (!str || !*str)
+    if (!str)
         return 0;
+    if (*str == '\0')
+        return 1;
     for (; *str; str++) {
         if (*str < 'a' || *str > 'z')
             return 0;

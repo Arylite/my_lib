@@ -9,11 +9,13 @@
 
 int my_isneg(int n)
 {
+    ssize_t __w;
+
     if ((n > 0) || (n == 0)) {
-        ssize_t __w = write(1, "P", 1);
+        __w = write(1, "P", 1);
         (void)__w;
     } else if (n < 0) {
-        ssize_t __w = write(1, "N", 1);
+        __w = write(1, "N", 1);
         (void)__w;
     }
     return 0;

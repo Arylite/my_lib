@@ -5,19 +5,19 @@
 ** Header file for my library
 */
 #ifndef MY_H_
-#define MY_H_
+    #define MY_H_
 
-#include <stddef.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <limits.h>
+    #include <stddef.h>
+    #include <stdlib.h>
+    #include <unistd.h>
+    #include <stdbool.h>
+    #include <limits.h>
 
-/* Useful macros */
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define UNUSED __attribute__((unused))
+    /* Useful macros */
+    #define ABS(x) ((x) < 0 ? -(x) : (x))
+    #define MAX(a, b) ((a) > (b) ? (a) : (b))
+    #define MIN(a, b) ((a) < (b) ? (a) : (b))
+    #define UNUSED __attribute__((unused))
 
 /* Function prototypes */
 

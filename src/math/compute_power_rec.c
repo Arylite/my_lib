@@ -9,7 +9,7 @@
 
 int my_compute_power_rec(int nb, int p)
 {
-    long result;
+    long result = nb;
 
     if (p < 0)
         return 0;
@@ -17,13 +17,10 @@ int my_compute_power_rec(int nb, int p)
         return 1;
     if (p == 1)
         return nb;
-    if (p % 2 == 0) {
-        int half = my_compute_power_rec(nb, p / 2);
-        result = (long)half * half;
-    } else {
-        result = (long)nb * my_compute_power_rec(nb, p - 1);
+    for (int i = 1; i < p; i++) {
+        result *= nb;
+        if (result > 2147483647L || result < -2147483648L)
+            return 0;
     }
-    if (my_overflow_check((void *)(size_t)result, sizeof(int)))
-        return 0;
     return (int)result;
 }

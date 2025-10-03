@@ -7,14 +7,20 @@
 
 #include "my.h"
 
+static void print_hex_byte(unsigned char val)
+{
+    if (val < 16)
+        my_putchar('0');
+    my_putnbr_base(val, "0123456789abcdef");
+}
+
 static void print_hex_line(const char *str, int start, int size)
 {
-    for (int j = 0; j < 16; j++) {
+    int j;
+
+    for (j = 0; j < 16; j++) {
         if (start + j < size) {
-            unsigned char val = (unsigned char)str[start + j];
-            if (val < 16)
-                my_putchar('0');
-            my_putnbr_base(val, "0123456789abcdef");
+            print_hex_byte((unsigned char)str[start + j]);
         } else {
             my_putstr("  ");
         }
@@ -25,8 +31,11 @@ static void print_hex_line(const char *str, int start, int size)
 
 static void print_ascii_line(const char *str, int start, int size)
 {
-    for (int j = 0; j < 16 && start + j < size; j++) {
-        char c = str[start + j];
+    int j;
+    char c;
+
+    for (j = 0; j < 16 && start + j < size; j++) {
+        c = str[start + j];
         if (c >= 32 && c <= 126)
             my_putchar(c);
         else

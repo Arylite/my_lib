@@ -1,34 +1,35 @@
 # Compiler and tools
-CC      := $(if $(CC),$(CC),clang)
-AR      := ar rcs
-RM      := rm -rf
-MKDIR   := mkdir -p
+CC := epiclang
+AR := ar rcs
+RM := rm -rf
+MKDIR := mkdir -p
 INSTALL := install
 
 # Project information
-VERSION  := 1.0.0
-SONAME   := libmy.so.$(shell echo $(VERSION) | cut -d. -f1)
+VERSION := 1.5.0
+SONAME := libmy.so.$(shell echo $(VERSION) | cut -d. -f1)
 LIB_NAME := libmy
 
 # Directories
-SRC_DIR     := src
-BUILD_DIR   := build
-DIST_DIR    := dist
+SRC_DIR := src
+BUILD_DIR := build
+DIST_DIR := dist
 INCLUDE_DIR := include
 INSTALL_DIR ?= /usr/local
+TEST_DIR := tests
 
 # Flags
-CFLAGS   += -Wall -Wextra -Werror -I$(INCLUDE_DIR) -fPIC
+CFLAGS += -Wall -Wextra -Werror -I$(INCLUDE_DIR) -fPIC
 OPTFLAGS ?= -O2
-LDFLAGS  += -shared
+LDFLAGS += -shared
+TEST_CFLAGS := -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(BUILD_DIR) -Wall -Wextra -Werror -fPIC -lcriterion
 
 # Build type
 DEBUG ?= 0
 ifeq ($(DEBUG),1)
-	CFLAGS += -g -DDEBUG
-	OPTFLAGS = -O0
+    CFLAGS += -g -DDEBUG
+    OPTFLAGS = -O0
 endif
-
 CFLAGS += $(OPTFLAGS)
 
 # Sources and objects (recursively find all .c files under $(SRC_DIR))
@@ -36,25 +37,28 @@ CFLAGS += $(OPTFLAGS)
 SRCS := $(shell find $(SRC_DIR) -type f -name '*.c')
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
+# Test sources
+TEST_SRCS := $(wildcard $(TEST_DIR)/*.c)
+
 # Outputs
-STATIC_LIB  := $(LIB_NAME).a
-SHARED_LIB  := $(LIB_NAME).so.$(VERSION)
+STATIC_LIB := $(LIB_NAME).a
+SHARED_LIB := $(LIB_NAME).so.$(VERSION)
 SHARED_LINK := $(LIB_NAME).so
 
 # Colors
-BLUE  := \033[0;34m
+BLUE := \033[0;34m
 GREEN := \033[0;32m
-RED   := \033[0;31m
+RED := \033[0;31m
 RESET := \033[0m
 
 # Verbose mode
 V ?= 0
 ifeq ($(V),1)
-	Q :=
-	VECHO = @true
+    Q :=
+    VECHO = @true
 else
-	Q := @
-	VECHO = @printf "$(BLUE)%s$(RESET) %s\n"
+    Q := @
+    VECHO = @printf "$(BLUE)%s$(RESET) %s\n"
 endif
 
 # Default target
@@ -108,6 +112,13 @@ fclean: clean
 
 re: fclean all
 
+# Test target
+test: all
+	$(VECHO) "TEST" "running tests"
+	$(Q)$(CC) $(TEST_CFLAGS) $(TEST_SRCS) -L$(DIST_DIR) -lmy -o $(TEST_DIR)/test_my
+	$(Q)LD_LIBRARY_PATH=$(DIST_DIR) ./$(TEST_DIR)/test_my
+	$(Q)rm -f $(TEST_DIR)/test_my
+
 # Debug build
 debug:
 	$(MAKE) DEBUG=1
@@ -117,29 +128,30 @@ install: all
 	$(VECHO) "INSTALL" "headers and libraries"
 	$(Q)$(INSTALL) -d $(INSTALL_DIR)/include $(INSTALL_DIR)/lib
 	$(Q)$(INSTALL) -m 644 $(INCLUDE_DIR)/*.h $(INSTALL_DIR)/include/
-	$(Q)$(INSTALL) -m 644 $(STATIC_LIB) $(INSTALL_DIR)/lib/
-	$(Q)$(INSTALL) -m 755 $(SHARED_LIB) $(INSTALL_DIR)/lib/
+	$(Q)$(INSTALL) -m 644 $(DIST_DIR)/$(STATIC_LIB) $(INSTALL_DIR)/lib/
+	$(Q)$(INSTALL) -m 755 $(DIST_DIR)/$(SHARED_LIB) $(INSTALL_DIR)/lib/
 	$(Q)ln -sf $(SHARED_LIB) $(INSTALL_DIR)/lib/$(SHARED_LINK)
 
 # Help
 help:
 	@echo "Available targets:"
-	@echo "  all      : Build both static and shared libraries (default)"
-	@echo "  static   : Build static library only"
-	@echo "  shared   : Build shared library only"
-	@echo "  clean    : Remove build directory"
-	@echo "  fclean   : Remove build directory and output files"
-	@echo "  re       : Rebuild everything"
-	@echo "  debug    : Build with debug symbols"
-	@echo "  install  : Install library to $(INSTALL_DIR)"
+	@echo "  all     : Build both static and shared libraries (default)"
+	@echo "  static  : Build static library only"
+	@echo "  shared  : Build shared library only"
+	@echo "  test    : Build and run tests"
+	@echo "  clean   : Remove build directory"
+	@echo "  fclean  : Remove build directory and output files"
+	@echo "  re      : Rebuild everything"
+	@echo "  debug   : Build with debug symbols"
+	@echo "  install : Install library to $(INSTALL_DIR)"
 	@echo ""
 	@echo "Configuration variables:"
-	@echo "  V=1      : Verbose output"
-	@echo "  DEBUG=1  : Build with debug flags"
-	@echo "  CC=gcc   : Use different compiler"
-	@echo "  OPTFLAGS : Set optimization flags (default: -O2)"
+	@echo "  V=1         : Verbose output"
+	@echo "  DEBUG=1     : Build with debug flags"
+	@echo "  CC=gcc      : Use different compiler"
+	@echo "  OPTFLAGS    : Set optimization flags (default: -O2)"
 
 # Include dependency files
 -include $(OBJS:.o=.d)
 
-.PHONY: all static shared clean fclean re debug install help
+.PHONY: all static shared clean fclean re debug install help test

@@ -9,17 +9,17 @@
 
 int my_is_prime(int nb)
 {
-    int sr;
+    int sr = 1;
 
-    if (my_overflow_check((void *)(size_t)nb, sizeof(int)))
-        return 0;
     if (nb <= 1)
         return 0;
     if (nb == 2)
         return 1;
     if (nb % 2 == 0)
         return 0;
-    sr = my_compute_square_root(nb);
+    while (sr * sr <= nb)
+        sr++;
+    sr--;
     for (int i = 3; i <= sr; i += 2) {
         if (nb % i == 0)
             return 0;

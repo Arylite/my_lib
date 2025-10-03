@@ -11,6 +11,7 @@
 int my_putstr(char const *str)
 {
     ssize_t __w = write(1, str, my_strlen(str));
+
     (void)__w;
     return 0;
 }
