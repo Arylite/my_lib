@@ -3,6 +3,7 @@
         "my.h": "c",
         "stddef.h": "c",
         "limits.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "type_traits": "c"
     }
 }
