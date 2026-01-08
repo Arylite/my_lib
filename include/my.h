@@ -117,4 +117,10 @@ int my_putnbr_base(int nbr, char const *base);
 /* Check for overflow in signed types */
 bool my_overflow_check(void *something, size_t type_size);
 
+/* Splits a string into an array of words */
+char **str_to_word_array(const char *str);
+
+/* Duplicates a string */
+char *strdup(const char *str);
+
 #endif /* MY_H_ */

@@ -8,7 +8,7 @@
 char *my_strlowcase(char *str)
 {
     for (char *p = str; *p; ++p)
-        if ((unsigned char)*p >= 'A' && (unsigned char)*p <= 'Z')
+        if ((unsigned char) *p >= 'A' && (unsigned char) *p <= 'Z')
             *p += 'a' - 'A';
     return str;
 }

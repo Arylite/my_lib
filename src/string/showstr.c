@@ -22,7 +22,7 @@ int my_showstr(char const *str)
     if (str == NULL)
         return 84;
     for (; *str; str++) {
-        c = (unsigned char)*str;
+        c = (unsigned char) *str;
         if (c < 32 || c > 126)
             print_non_printable(c);
         else

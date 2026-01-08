@@ -1,1 +1,12 @@
+.cache/
+.clang-format
+
+# Extensions added automatically
+*.0
 *.a
+*.d
+*.json
+*.md
+*.o
+*.py
+*.so
