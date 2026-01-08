@@ -1,3 +1,4 @@
+[![C CI](https://github.com/Arylite/my_lib/actions/workflows/ci.yml/badge.svg)](https://github.com/Arylite/my_lib/actions/workflows/ci.yml)
 # Libmy - Epitech Tek 1 Project
 
 Libmy is a deprecated set of C utility functions from the Epitech Tek 1 curriculum. This repository is obsolete, unsupported, and should not be used for any Epitech assignments (apart from me, hehe, you thought I wouldn't use it, would I?). Submitting Libmy for coursework is strictly forbidden and may lead to disciplinary consequences. The code is outdated, potentially flawed, and provided solely for reference; use it at your own risk, no help or updates will be given. Feel free to read the code to understand the ideas and processes behind these functions, but do not copy any part of the implementation, focus on learning the concepts, not reusing the code itself.
