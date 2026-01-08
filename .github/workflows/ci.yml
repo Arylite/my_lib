@@ -1,0 +1,50 @@
+name: C CI
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Compile static library
+      run: make static CC=gcc
+
+    - name: Check artifact
+      run: |
+        if [ ! -f dist/libmy.a ]; then
+          echo "Static library libmy.a not found in dist/"
+          exit 1
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: libmy-static
+        path: dist/libmy.a
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: libmy-static
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: libmy.a
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

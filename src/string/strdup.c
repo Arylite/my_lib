@@ -13,8 +13,6 @@ char *strdup(const char *str)
     size_t len = 0;
     char *dup = NULL;
 
-    if (str == NULL)
-        return NULL;
     while (str[len] != '\0')
         len++;
     dup = (char *) malloc((len + 1) * sizeof(char));
