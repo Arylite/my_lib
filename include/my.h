@@ -12,12 +12,18 @@
     #include <unistd.h>
     #include <stdbool.h>
     #include <limits.h>
+    #include <stdarg.h>
 
     /* Useful macros */
     #define ABS(x) ((x) < 0 ? -(x) : (x))
     #define MAX(a, b) ((a) > (b) ? (a) : (b))
     #define MIN(a, b) ((a) < (b) ? (a) : (b))
     #define UNUSED __attribute__((unused))
+
+typedef struct printf_node_s {
+    char specifier;
+    size_t (*handler)(va_list args);
+} printf_node_t;
 
 /* Function prototypes */
 
@@ -122,5 +128,8 @@ char **str_to_word_array(const char *str);
 
 /* Duplicates a string */
 char *strdup(const char *str);
+
+/* Printf implementation */
+int my_printf(const char *format, ...);
 
 #endif /* MY_H_ */
