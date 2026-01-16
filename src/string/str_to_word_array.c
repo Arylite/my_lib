@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 
+#ifndef NO_MALLOC
+
 static int is_space(char c)
 {
     return (c == ' ' || c == '\t' || c == '\n');
@@ -81,3 +83,5 @@ char **str_to_word_array(const char *str)
     array[k] = NULL;
     return array;
 }
+
+#endif /* NO_MALLOC */

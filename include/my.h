@@ -123,11 +123,15 @@ int my_putnbr_base(int nbr, char const *base);
 /* Check for overflow in signed types */
 bool my_overflow_check(void *something, size_t type_size);
 
-/* Splits a string into an array of words */
+/* Splits a string into an array of words (requires malloc) */
+    #ifndef NO_MALLOC
 char **str_to_word_array(const char *str);
+    #endif
 
-/* Duplicates a string */
+/* Duplicates a string (requires malloc) */
+    #ifndef NO_MALLOC
 char *strdup(const char *str);
+    #endif
 
 /* Printf implementation */
 int my_printf(const char *format, ...);

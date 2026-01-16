@@ -32,9 +32,19 @@ ifeq ($(DEBUG),1)
 endif
 CFLAGS += $(OPTFLAGS)
 
+# NO_MALLOC flag to exclude malloc-dependent files
+NO_MALLOC ?= 0
+ifeq ($(NO_MALLOC),1)
+    CFLAGS += -DNO_MALLOC
+endif
+
 # Sources and objects (recursively find all .c files under $(SRC_DIR))
 # Use find so we pick up sources in subdirectories like src/io, src/math, src/string
 SRCS := $(shell find $(SRC_DIR) -type f -name '*.c')
+# Exclude malloc-dependent files if NO_MALLOC is set
+ifeq ($(NO_MALLOC),1)
+    SRCS := $(filter-out $(SRC_DIR)/string/strdup.c $(SRC_DIR)/string/str_to_word_array.c,$(SRCS))
+endif
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
 # Test sources
@@ -146,10 +156,11 @@ help:
 	@echo "  install : Install library to $(INSTALL_DIR)"
 	@echo ""
 	@echo "Configuration variables:"
-	@echo "  V=1         : Verbose output"
-	@echo "  DEBUG=1     : Build with debug flags"
-	@echo "  CC=gcc      : Use different compiler"
-	@echo "  OPTFLAGS    : Set optimization flags (default: -O2)"
+	@echo "  V=1            : Verbose output"
+	@echo "  DEBUG=1        : Build with debug flags"
+	@echo "  NO_MALLOC=1    : Exclude malloc-dependent functions (strdup, str_to_word_array)"
+	@echo "  CC=gcc         : Use different compiler"
+	@echo "  OPTFLAGS       : Set optimization flags (default: -O2)"
 
 # Include dependency files
 -include $(OBJS:.o=.d)

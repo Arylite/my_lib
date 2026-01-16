@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#ifndef NO_MALLOC
+
 char *strdup(const char *str)
 {
     size_t len = 0;
@@ -22,3 +24,5 @@ char *strdup(const char *str)
         dup[i] = str[i];
     return dup;
 }
+
+#endif /* NO_MALLOC */
