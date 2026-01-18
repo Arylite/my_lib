@@ -25,6 +25,18 @@ typedef struct printf_node_s {
     size_t (*handler)(va_list args);
 } printf_node_t;
 
+typedef struct gc_node_s {
+    void *ptr;
+    struct gc_node_s *next;
+} gc_node_t;
+
+typedef struct gc_s {
+    gc_node_t *head;
+} gc_t;
+
+/* Garbage collector global state */
+extern gc_t g_gc;
+
 /* Function prototypes */
 
 /* Outputs a character to the standard output */
@@ -135,5 +147,19 @@ char *strdup(const char *str);
 
 /* Printf implementation */
 int my_printf(const char *format, ...);
+
+/* Garbage Collector (requires malloc) */
+    #ifndef NO_MALLOC
+
+/* Allocate memory and track it in the garbage collector */
+void *gc_malloc(size_t size);
+
+/* Free a specific pointer tracked by the garbage collector */
+int gc_free(void *ptr);
+
+/* Free all tracked pointers and clean up the garbage collector */
+int gc_clean(void);
+
+    #endif
 
 #endif /* MY_H_ */
