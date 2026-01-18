@@ -18,6 +18,12 @@
     #define ABS(x) ((x) < 0 ? -(x) : (x))
     #define MAX(a, b) ((a) > (b) ? (a) : (b))
     #define MIN(a, b) ((a) < (b) ? (a) : (b))
+    #define CEIL(x) ((x) == (int)(x) ? (x) : (int)(x) + 1)
+    #define FLOOR(x) ((x) == (int)(x) ? (x) : (int)(x))
+    #define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : ((x) > (hi) ? (hi) : (x)))
+    #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
+    #define IS_EVEN(x) ((x)%2 == 0)
+    #define IS_ODD(x) ((x)%2 != 0)
     #define UNUSED __attribute__((unused))
 
 typedef struct printf_node_s {
@@ -160,6 +166,26 @@ int gc_free(void *ptr);
 /* Free all tracked pointers and clean up the garbage collector */
 int gc_clean(void);
 
+/* Set a block of memory to a specific value */
+void *my_memset(void *pointer, int value, size_t count);
+
+/* Compare two memory areas */
+int my_memcmp(const void *pointer1, const void *pointer2, size_t size);
+
+/* Copy memory area */
+void *my_memcpy(void *dest, const void *src, size_t n);
+
+void *my_calloc(size_t nmemb, size_t size);
+
     #endif
+
+/* Computes the factorial of a number */
+long long factorial(int n);
+
+/* Computes the greatest common divisor of two numbers */
+int gcd(int a, int b);
+
+/* Computes the least common multiple of two numbers */
+int lcm(int a, int b);
 
 #endif /* MY_H_ */
