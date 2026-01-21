@@ -168,6 +168,10 @@ int gc_free(void *ptr);
 /* Free all tracked pointers and clean up the garbage collector */
 int gc_clean(void);
 
+void *my_calloc(size_t nmemb, size_t size);
+
+    #endif
+
 /* Set a block of memory to a specific value */
 void *my_memset(void *pointer, int value, size_t count);
 
@@ -176,10 +180,6 @@ int my_memcmp(const void *pointer1, const void *pointer2, size_t size);
 
 /* Copy memory area */
 void *my_memcpy(void *dest, const void *src, size_t n);
-
-void *my_calloc(size_t nmemb, size_t size);
-
-    #endif
 
 /* Computes the factorial of a number */
 long long factorial(int n);

@@ -1,168 +1,219 @@
-# Compiler and tools
-CC ?= epiclang
-AR := ar rcs
-RM := rm -rf
-MKDIR := mkdir -p
-INSTALL := install
+##
+## EPITECH PROJECT, 2026
+## MyLib
+## File description:
+## Modern, standalone Makefile for a C library
+##
 
-# Project information
-VERSION := 2.0.0
-SONAME := libmy.so.$(shell echo $(VERSION) | cut -d. -f1)
-LIB_NAME := libmy
+# --- Project Configuration ---
+NAME        := my
+VERSION     := 2.0.0
+# Portable version parsing without external 'cut'
+MAJOR       := $(firstword $(subst ., ,$(VERSION)))
 
-# Directories
-SRC_DIR := src
-BUILD_DIR := build
-DIST_DIR := dist
-INCLUDE_DIR := include
-INSTALL_DIR ?= /usr/local
-TEST_DIR := tests
+# --- Directories ---
+SRC_DIR     := src
+INC_DIR     := include
+BUILD_DIR   := build
+DIST_DIR    := dist
+TEST_DIR    := tests
 
-# Flags
-CFLAGS += -Wall -Wextra -Werror -I$(INCLUDE_DIR) -fPIC
-OPTFLAGS ?= -O2
-LDFLAGS += -shared
-TEST_CFLAGS := -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(BUILD_DIR) -Wall -Wextra -Werror -fPIC -lcriterion
+# --- Compilation Settings ---
+CC          ?= gcc
+AR          := ar rcs
+RM          := rm -rf
+MKDIR       := mkdir -p
+INSTALL     := install
 
-# Build type
-DEBUG ?= 0
+# --- Flags ---
+# Using override to ensure mandatory flags are kept if user passes CFLAGS
+override CFLAGS += -Wall -Wextra -Werror -I$(INC_DIR) -fPIC
+OPTFLAGS    ?= -O2
+LDFLAGS     := -shared -Wl,-soname,lib$(NAME).so.$(MAJOR)
+
+# Build Modes
+DEBUG       ?= 0
 ifeq ($(DEBUG),1)
-    CFLAGS += -g -DDEBUG
-    OPTFLAGS = -O0
+    override CFLAGS += -g3 -DDEBUG
+    OPTFLAGS := -O0
 endif
-CFLAGS += $(OPTFLAGS)
+override CFLAGS += $(OPTFLAGS)
 
-# NO_MALLOC flag to exclude malloc-dependent files
-NO_MALLOC ?= 0
+# NO_MALLOC support
+NO_MALLOC   ?= 0
 ifeq ($(NO_MALLOC),1)
-    CFLAGS += -DNO_MALLOC
+    override CFLAGS += -DNO_MALLOC
 endif
 
-# Sources and objects (recursively find all .c files under $(SRC_DIR))
-# Use find so we pick up sources in subdirectories like src/io, src/math, src/string
-SRCS := $(shell find $(SRC_DIR) -type f -name '*.c')
-# Exclude malloc-dependent files if NO_MALLOC is set
+# --- Source Management ---
+empty :=
+space := $(empty) $(empty)
+
+# Explicit submodule list for portability and speed
+SUBDIRS     := array gc io math memory string string/printf
+
+# Pure GNU Make source discovery (no 'find' command)
+SRCS        := $(wildcard $(SRC_DIR)/*.c) \
+               $(foreach dir,$(SUBDIRS),$(wildcard $(SRC_DIR)/$(dir)/*.c))
+
+# Auto-detect malloc-dependent files and their dependents if NO_MALLOC is set
 ifeq ($(NO_MALLOC),1)
-    SRCS := $(filter-out $(SRC_DIR)/string/strdup.c $(SRC_DIR)/string/str_to_word_array.c,$(SRCS))
+    # 1. Start with files that directly use malloc
+    MALLOC_SRCS := $(shell grep -l "malloc" $(SRCS) 2>/dev/null)
+    SRCS        := $(filter-out $(MALLOC_SRCS),$(SRCS))
+    
+    # 2. Extract symbols (filenames) that were removed
+    BAD_SYMS    := $(patsubst $(SRC_DIR)/%.c,%,$(MALLOC_SRCS))
+    BAD_SYMS    := $(notdir $(BAD_SYMS))
+    
+    # 3. Pass 1: Remove files that use these symbols
+    # Use grep to find occurrences as words
+    DEP_PATTERN := $(subst $(space),|,$(BAD_SYMS))
+    ifneq ($(DEP_PATTERN),)
+        DEP_SRCS := $(shell grep -lE "\<($(DEP_PATTERN))\>" $(SRCS) 2>/dev/null)
+        SRCS     := $(filter-out $(DEP_SRCS),$(SRCS))
+        # Update symbols with newly removed files
+        BAD_SYMS += $(notdir $(patsubst $(SRC_DIR)/%.c,%,$(DEP_SRCS)))
+    endif
+
+    # 4. Pass 2: Recurse one more level
+    DEP_PATTERN := $(subst $(space),|,$(BAD_SYMS))
+    ifneq ($(DEP_PATTERN),)
+        DEP_SRCS_2 := $(shell grep -lE "\<($(DEP_PATTERN))\>" $(SRCS) 2>/dev/null)
+        SRCS       := $(filter-out $(DEP_SRCS_2),$(SRCS))
+    endif
 endif
-OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
-# Test sources
-TEST_SRCS := $(wildcard $(TEST_DIR)/*.c)
+OBJS        := $(SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+DEPS        := $(OBJS:.o=.d)
 
-# Outputs
-STATIC_LIB := $(LIB_NAME).a
-SHARED_LIB := $(LIB_NAME).so.$(VERSION)
-SHARED_LINK := $(LIB_NAME).so
+# --- Output Artifacts ---
+STATIC_LIB  := $(DIST_DIR)/lib$(NAME).a
+SHARED_LIB  := $(DIST_DIR)/lib$(NAME).so.$(VERSION)
+SONAME_LIB  := $(DIST_DIR)/lib$(NAME).so.$(MAJOR)
+LINK_LIB    := $(DIST_DIR)/lib$(NAME).so
 
-# Colors
-BLUE := \033[0;34m
-GREEN := \033[0;32m
-RED := \033[0;31m
-RESET := \033[0m
+# --- Aesthetics ---
+# Use bold variants for headers
+BOLD        := \033[1m
+BLUE        := \033[1;34m
+CYAN        := \033[1;36m
+GREEN       := \033[1;32m
+RED         := \033[1;31m
+YELLOW      := \033[1;33m
+MAGENTA     := \033[1;35m
+WHITE       := \033[1;37m
+RESET       := \033[0m
 
-# Verbose mode
-V ?= 0
+# Verbosity Control
+V           ?= 0
 ifeq ($(V),1)
-    Q :=
-    VECHO = @true
+    Q       :=
+    VECHO   := @true
 else
-    Q := @
-    VECHO = @printf "$(BLUE)%s$(RESET) %s\n"
+    Q       := @
+    # Modern prefix-based display
+    VECHO   := @printf "$(BOLD)$(CYAN)%-10s$(RESET) %s\n"
 endif
 
-# Default target
-all: static shared
+# --- Primary Targets ---
+all: banner static
 
-# Build object files with automatic header dependencies
-# Ensure destination directory for the object exists (handles nested dirs)
+banner:
+	@printf "$(BOLD)$(MAGENTA)--- Building MyLib v$(VERSION) ---$(RESET)\n"
+	@printf "$(CYAN)Mode:$(RESET) %s | $(CYAN)Malloc:$(RESET) %s | $(CYAN)Sources:$(RESET) %s\n" \
+		"$(if $(filter 1,$(DEBUG)),Debug,Release)" \
+		"$(if $(filter 1,$(NO_MALLOC)),Disabled,Enabled)" \
+		"$(words $(SRCS))"
+	@printf "$(MAGENTA)----------------------------------$(RESET)\n"
+
+static: $(STATIC_LIB)
+	@printf "$(BOLD)$(GREEN)➜$(RESET) $(BOLD)Static library created:$(RESET) $(YELLOW)$<$(RESET)\n"
+
+shared: $(SHARED_LIB)
+	@printf "$(BOLD)$(GREEN)➜$(RESET) $(BOLD)Shared library created:$(RESET) $(YELLOW)$<$(RESET)\n"
+
+# --- Build Rules ---
+$(STATIC_LIB): $(OBJS) | $(DIST_DIR)
+	$(VECHO) "AR" "$@"
+	$(Q)$(AR) $@ $(OBJS)
+
+$(SHARED_LIB): $(OBJS) | $(DIST_DIR)
+	$(VECHO) "LD" "$@"
+	$(Q)$(CC) $(LDFLAGS) -o $@ $(OBJS)
+	$(Q)ln -sf $(notdir $(SHARED_LIB)) $(SONAME_LIB)
+	$(Q)ln -sf $(notdir $(SHARED_LIB)) $(LINK_LIB)
+
+# Object files with auto-dependency generation
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	$(VECHO) "CC" $<
 	$(Q)$(MKDIR) $(dir $@)
+	$(VECHO) "CC" "$<"
 	$(Q)$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 
-# Static library
-static: $(BUILD_DIR)/$(STATIC_LIB)
+# --- Directory Creation ---
+$(BUILD_DIR) $(DIST_DIR):
+	$(Q)$(MKDIR) $@
 
-$(BUILD_DIR)/$(STATIC_LIB): $(OBJS) | $(DIST_DIR)
-	$(VECHO) "AR" $@
-	$(Q)$(AR) $@ $(OBJS)
-	$(Q)cp -f $@ $(DIST_DIR)/$(STATIC_LIB)
-	$(VECHO) "CP" $(DIST_DIR)/$(STATIC_LIB)
-
-# Shared library
-shared: $(BUILD_DIR)/$(SHARED_LIB)
-
-$(BUILD_DIR)/$(SHARED_LIB): $(OBJS) | $(DIST_DIR)
-	$(VECHO) "LD" $@
-	$(Q)$(CC) $(LDFLAGS) -o $@ $(OBJS)
-	$(Q)cp -f $@ $(DIST_DIR)/$(SHARED_LIB)
-	$(Q)ln -sf $(SHARED_LIB) $(DIST_DIR)/$(SHARED_LINK)
-	$(VECHO) "CP" $(DIST_DIR)/$(SHARED_LIB)
-	$(VECHO) "LN" $(DIST_DIR)/$(SHARED_LINK)
-
-# Create build directory
-$(BUILD_DIR):
-	$(VECHO) "MKDIR" $@
-	$(Q)$(MKDIR) $(BUILD_DIR)
-
-# Create dist directory for final artifacts
-$(DIST_DIR):
-	$(VECHO) "MKDIR" $@
-	$(Q)$(MKDIR) $(DIST_DIR)
-
-# Clean up
+# --- Cleaning ---
 clean:
-	$(VECHO) "CLEAN" "build artifacts"
+	$(VECHO) "CLEAN" "Removing objects and dependencies..."
 	$(Q)$(RM) $(BUILD_DIR)
 
 fclean: clean
-	$(VECHO) "CLEAN" "libraries"
-	$(Q)$(RM) $(DIST_DIR) $(STATIC_LIB) $(SHARED_LIB) $(SHARED_LINK)
+	$(VECHO) "CLEAN" "Removing libraries and distribution..."
+	$(Q)$(RM) $(DIST_DIR)
 
 re: fclean all
 
-# Test target
-test: all
-	$(VECHO) "TEST" "running tests"
-	$(Q)$(CC) $(TEST_CFLAGS) $(TEST_SRCS) -L$(DIST_DIR) -lmy -o $(TEST_DIR)/test_my
-	$(Q)LD_LIBRARY_PATH=$(DIST_DIR) ./$(TEST_DIR)/test_my
-	$(Q)rm -f $(TEST_DIR)/test_my
+# --- Unit Tests ---
+TEST_NAME := unit_tests
+tests_run: all
+	$(VECHO) "LD" "$(TEST_NAME)"
+	$(Q)$(CC) -o $(TEST_NAME) $(wildcard $(TEST_DIR)/*.c) \
+		-L$(DIST_DIR) -lmy -lcriterion -I$(INC_DIR) \
+		-Wl,-rpath,$(abspath $(DIST_DIR))
+	@printf "$(BOLD)$(MAGENTA)Running tests...$(RESET)\n"
+	$(Q)./$(TEST_NAME)
+	@printf "$(BOLD)$(GREEN)✔ All tests passed$(RESET)\n"
 
-# Debug build
-debug:
-	$(MAKE) DEBUG=1
-
-# Install library
+# --- Installation ---
+PREFIX ?= /usr/local
 install: all
-	$(VECHO) "INSTALL" "headers and libraries"
-	$(Q)$(INSTALL) -d $(INSTALL_DIR)/include $(INSTALL_DIR)/lib
-	$(Q)$(INSTALL) -m 644 $(INCLUDE_DIR)/*.h $(INSTALL_DIR)/include/
-	$(Q)$(INSTALL) -m 644 $(DIST_DIR)/$(STATIC_LIB) $(INSTALL_DIR)/lib/
-	$(Q)$(INSTALL) -m 755 $(DIST_DIR)/$(SHARED_LIB) $(INSTALL_DIR)/lib/
-	$(Q)ln -sf $(SHARED_LIB) $(INSTALL_DIR)/lib/$(SHARED_LINK)
+	@printf "$(BOLD)$(CYAN)Installing to $(PREFIX)...$(RESET)\n"
+	$(VECHO) "INSTALL" "headers"
+	$(Q)$(INSTALL) -d $(PREFIX)/include
+	$(Q)$(INSTALL) -m 644 $(INC_DIR)/*.h $(PREFIX)/include/
+	$(VECHO) "INSTALL" "libraries"
+	$(Q)$(INSTALL) -d $(PREFIX)/lib
+	$(Q)$(INSTALL) -m 644 $(STATIC_LIB) $(PREFIX)/lib/
+	$(Q)$(INSTALL) -m 755 $(SHARED_LIB) $(PREFIX)/lib/
+	$(Q)ln -sf lib$(NAME).so.$(VERSION) $(PREFIX)/lib/lib$(NAME).so.$(MAJOR)
+	$(Q)ln -sf lib$(NAME).so.$(VERSION) $(PREFIX)/lib/lib$(NAME).so
+	@printf "$(BOLD)$(GREEN)✔ Installation complete$(RESET)\n"
 
-# Help
+# --- Help ---
 help:
-	@echo "Available targets:"
-	@echo "  all     : Build both static and shared libraries (default)"
-	@echo "  static  : Build static library only"
-	@echo "  shared  : Build shared library only"
-	@echo "  test    : Build and run tests"
-	@echo "  clean   : Remove build directory"
-	@echo "  fclean  : Remove build directory and output files"
-	@echo "  re      : Rebuild everything"
-	@echo "  debug   : Build with debug symbols"
-	@echo "  install : Install library to $(INSTALL_DIR)"
-	@echo ""
-	@echo "Configuration variables:"
-	@echo "  V=1            : Verbose output"
-	@echo "  DEBUG=1        : Build with debug flags"
-	@echo "  NO_MALLOC=1    : Exclude malloc-dependent functions (strdup, str_to_word_array)"
-	@echo "  CC=gcc         : Use different compiler"
-	@echo "  OPTFLAGS       : Set optimization flags (default: -O2)"
+	@printf "$(BOLD)$(MAGENTA)MyLib Build System v$(VERSION)$(RESET)\n\n"
+	@printf "$(BOLD)$(YELLOW)Usage:$(RESET) make [target] [variable=value]\n\n"
+	@printf "$(BOLD)$(YELLOW)Targets:$(RESET)\n"
+	@printf "  $(GREEN)all$(RESET)          Build static library (default)\n"
+	@printf "  $(GREEN)static$(RESET)       Build lib$(NAME).a\n"
+	@printf "  $(GREEN)shared$(RESET)       Build lib$(NAME).so\n"
+	@printf "  $(GREEN)clean$(RESET)        Remove build artifacts\n"
+	@printf "  $(GREEN)fclean$(RESET)       Remove artifacts and libraries\n"
+	@printf "  $(GREEN)re$(RESET)           Full rebuild\n"
+	@printf "  $(GREEN)tests_run$(RESET)    Compile and run unit tests\n"
+	@printf "  $(GREEN)debug$(RESET)        Rebuild with -g3 -O0\n"
+	@printf "  $(GREEN)install$(RESET)      Install to system (PREFIX=$(PREFIX))\n\n"
+	@printf "$(BOLD)$(YELLOW)Configuration Variables:$(RESET)\n"
+	@printf "  $(CYAN)V=1$(RESET)          Enable verbose output\n"
+	@printf "  $(CYAN)DEBUG=1$(RESET)      Enable debug mode\n"
+	@printf "  $(CYAN)NO_MALLOC=1$(RESET)  Auto-exclude malloc files\n"
 
-# Include dependency files
--include $(OBJS:.o=.d)
+debug:
+	@$(MAKE) DEBUG=1 re --no-print-directory
 
-.PHONY: all static shared clean fclean re debug install help test
+# Automatic dependency inclusion
+-include $(DEPS)
+
+.PHONY: all static shared clean fclean re tests_run debug install help
