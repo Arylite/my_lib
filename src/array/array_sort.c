@@ -10,12 +10,14 @@
 static void swap_elements(void *a, void *b, size_t elem_size)
 {
     char temp[elem_size];
+
     my_memcpy(temp, a, elem_size);
     my_memcpy(a, b, elem_size);
     my_memcpy(b, temp, elem_size);
 }
 
-static bool bubble_pass(void *array, size_t length, size_t elem_size, size_t (*comparator)(void *, void *))
+static bool bubble_pass(void *array, size_t length, size_t elem_size,
+    size_t (*comparator)(void *, void *))
 {
     bool swapped = false;
     void *elem1 = NULL;

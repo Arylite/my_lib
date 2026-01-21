@@ -12,7 +12,7 @@ char **my_array_from_strings(char *strings[])
 {
     size_t count = 0;
     char **array = NULL;
-    
+
     while (strings[count] != NULL) {
         count++;
     }
