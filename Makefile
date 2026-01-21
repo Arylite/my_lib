@@ -1,12 +1,12 @@
 # Compiler and tools
-CC := epiclang
+CC ?= epiclang
 AR := ar rcs
 RM := rm -rf
 MKDIR := mkdir -p
 INSTALL := install
 
 # Project information
-VERSION := 1.5.0
+VERSION := 2.0.0
 SONAME := libmy.so.$(shell echo $(VERSION) | cut -d. -f1)
 LIB_NAME := libmy
 

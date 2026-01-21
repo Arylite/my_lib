@@ -21,7 +21,6 @@
     #define CEIL(x) ((x) == (int)(x) ? (x) : (int)(x) + 1)
     #define FLOOR(x) ((x) == (int)(x) ? (x) : (int)(x))
     #define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : ((x) > (hi) ? (hi) : (x)))
-    #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
     #define IS_EVEN(x) ((x)%2 == 0)
     #define IS_ODD(x) ((x)%2 != 0)
     #define UNUSED __attribute__((unused))
@@ -95,6 +94,9 @@ char *my_strstr(char *str, char const *to_find);
 
 /* Compares two strings, returns the difference */
 int my_strcmp(char const *s1, char const *s2);
+
+/* Compares two strings in a case-insensitive manner */
+int my_strcmp_insensitive(char const *s1, char const *s2);
 
 /* Compares two strings up to n characters */
 int my_strncmp(char const *s1, char const *s2, int n);
@@ -187,5 +189,21 @@ int gcd(int a, int b);
 
 /* Computes the least common multiple of two numbers */
 int lcm(int a, int b);
+
+/* Duplicates an array of any type */
+void *array_dup(void *array);
+
+/* Return the size of an array of any type */
+size_t array_size(void *array);
+
+/* Compares two arrays of any type with a custom comparator */
+size_t array_cmp(void *array1, void *array2,
+    size_t (*comparator)(void *, void *));
+
+/* Sorts an array of any type with a custom comparator */
+size_t array_sort(void *array,
+    size_t (*comparator)(void *, void *));
+
+char **my_array_from_strings(char *strings[]);
 
 #endif /* MY_H_ */
